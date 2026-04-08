@@ -1,0 +1,155 @@
+Here’s a practical, human-friendly Secure Coding Review module/project you can use for assignments, presentations, or real audits. I’ll walk you through a complete example using Python (Flask web app) since it’s common and easy to understand.
+
+🔐 Secure Coding Review
+🟦 1. Objective
+Identify security vulnerabilities in an application
+Understand how insecure code leads to attacks
+Recommend fixes and best practices
+🟦 2. Selected Technology
+
+Language: Python
+Framework: Flask
+Application Type: Simple Login Web App
+
+4. Vulnerability Analysis
+🔴 1. SQL Injection
+
+Problem:
+
+User input is directly inserted into SQL query
+
+Attack Example:
+2. Plaintext Password Storage
+
+Problem:
+
+Passwords are not hashed
+
+Impact:
+
+If database is leaked → all passwords exposed
+🔴 3. No Input Validation
+
+Problem:
+
+No checks on user input
+
+Impact:
+
+Enables injection and malformed data
+🔴 4. No Rate Limiting
+
+Problem:
+
+Unlimited login attempts
+
+Impact:
+
+Brute-force attacks possible
+🔴 5. No HTTPS Enforcement
+
+Problem:
+
+Data may be transmitted insecurely
+
+Impact:
+
+Credentials can be intercepted
+🟦 5. Secure Code (Fixed Version)
+from flask import Flask, request
+import sqlite3
+import hashlib
+
+app = Flask(__name__)
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = hash_password(request.form['password'])
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM users WHERE username=? AND password=?"
+    cursor.execute(query, (username, password))
+
+    if cursor.fetchone():
+        return "Login Successful"
+    else:
+        return "Invalid Credentials"
+🟦 6. Improvements Explained
+
+✅ Parameterized Queries
+
+Prevent SQL injection
+
+✅ Password Hashing
+
+Protect stored credentials
+
+✅ Input Handling
+
+Reduces malicious input risks
+🟦 7. Tools for Secure Code Review
+🔍 Static Analysis Tools
+Bandit (Python security scanner)
+SonarQube (multi-language)
+Semgrep (fast rule-based scanning)
+🧪 Dynamic Testing
+OWASP ZAP
+Burp Suite
+🟦 8. Manual Review Checklist
+Are inputs validated and sanitized?
+Are queries parameterized?
+Are passwords hashed?
+Is sensitive data encrypted?
+Are errors exposing internal info?
+Is authentication secure?
+🟦 9. Best Practices for Secure Coding
+Use prepared statements
+Never trust user input
+Store hashed passwords (bcrypt preferred)
+Implement authentication & authorization
+Use HTTPS everywhere
+Apply least privilege principle
+Log and monitor suspicious activity
+🟦 10. Findings Summary (Example Report)
+
+Application: Flask Login System
+
+Critical Issues:
+
+SQL Injection vulnerability
+Plaintext password storage
+
+Medium Issues:
+
+No input validation
+No rate limiting
+
+Low Issues:
+
+Missing HTTPS enforcement
+🟦 11. Remediation Steps
+Replace dynamic SQL with parameterized queries
+Hash passwords using bcrypt
+Add input validation
+Implement login attempt limits
+Enforce HTTPS
+Add logging and monitoring
+🟦 12. Final Takeaways
+Small coding mistakes → major security risks
+Always validate and sanitize input
+Use secure libraries instead of custom logic
+Security should be part of development, not an afterthought
+🎁 Bonus Ideas (for Projects)
+
+You can extend this into:
+
+🔍 Full audit report (PDF format)
+🛠️ Tool-based scanning demo (Bandit/SonarQube)
+🧪 Exploit demonstration (SQL injection demo)
+📊 Risk scoring dashboard
